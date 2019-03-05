@@ -15,6 +15,17 @@ export default class App extends Component {
     const date = this.handleDate(data.get("date"));
     console.log(artist);
     console.log(date);
+
+    fetch(`https://cors-anywhere.herokuapp.com/https://api.setlist.fm/rest/1.0/search/setlists/?artistName=${artist}&date=${date}`, {
+      method: 'GET',
+      headers: {
+        "Accept": "application/json",
+        "x-api-key": "eb4ad752-21d6-433a-ab6c-0a52a62d7f57"
+      }
+    }).then(function(response) {
+      console.log(response.body)
+      return response.body
+    });
   }
 
   handleDate = (date) => {
