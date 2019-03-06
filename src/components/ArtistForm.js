@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import Playlist from '../Playlist.js';
 
 export default class App extends Component {
   constructor(props) {
@@ -26,7 +27,18 @@ export default class App extends Component {
   }
 
   handleSetlist = (setlist) => {
-    console.log(setlist);
+    let playlist = new Playlist(setlist.setlist[0].artist.name, setlist.setlist[0].eventDate);
+
+    const numSets = setlist.setlist[0].sets.set.length;
+    for (let i = 0; i < numSets; i++) {
+      const numSongs = setlist.setlist[0].sets.set[i].song.length;
+
+      for (let j = 0; j < numSongs; j++) {
+        playlist.addSong(setlist.setlist[0].sets.set[i].song[j].name);
+      }
+    }
+
+    playlist.printSongs();
   };
 
   handleDate = (date) => {
