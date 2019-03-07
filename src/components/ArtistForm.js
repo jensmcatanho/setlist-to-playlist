@@ -1,4 +1,6 @@
 import React, { Component } from 'react';
+import queryString from "query-string";
+
 import Playlist from '../Playlist.js';
 
 export default class App extends Component {
@@ -7,6 +9,12 @@ export default class App extends Component {
     this.handleSubmit = this.handleSubmit.bind(this);
   }
 
+  componentDidMount() {
+    const parsed = queryString.parse(this.props.location.search);
+    this.setState({
+      code: parsed.code
+    });
+  }
 
   handleSubmit(event) {
     event.preventDefault();
