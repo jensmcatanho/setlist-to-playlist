@@ -21,4 +21,13 @@ app.get('/artist/:artistName/date/:date', cors(), function(req, res) {
 
 });
 
+app.get('/login', function(req, res) {
+    let scopes = 'playlist-modify-private';
+    res.redirect('https://accounts.spotify.com/authorize' +
+        '?response_type=code' +
+        '&client_id=e7a1436f0ecd4ae9aec4da4db57fb48e' +
+        (scopes ? '&scope=' + encodeURIComponent(scopes) : '') +
+        '&redirect_uri=' + encodeURIComponent('http://localhost:3000'));
+});
+
 app.listen(port, () => console.log(`Example app listening on port ${port}!`));
