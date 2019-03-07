@@ -6,6 +6,13 @@ import Playlist from '../Playlist.js';
 export default class App extends Component {
   constructor(props) {
     super(props);
+
+    this.state = {
+      "code": "",
+      "access_token": "",
+      "user_id": ""
+    }
+
     this.handleSubmit = this.handleSubmit.bind(this);
   }
 
@@ -14,6 +21,16 @@ export default class App extends Component {
     this.setState({
       code: parsed.code
     });
+
+    fetch(`http://localhost:4000/code/${parsed.code}`, {
+      method: 'GET'
+    }).then(
+      response => response.json()
+    ).then(
+      data => this.setState({
+        access_token: data.access_token
+      })
+    );
   }
 
   handleSubmit(event) {
@@ -25,12 +42,22 @@ export default class App extends Component {
     console.log(artist);
     console.log(date);
 
+    fetch(`http://localhost:4000/access_token/${this.state.access_token}`, {
+      method: 'GET'
+    }).then(
+      response => response.json()
+    ).then(
+      data => this.setState({
+        user_id: data.id
+      })
+    );
+
     fetch(`http://localhost:4000/artist/${artist}/date/${date}`, {
       method: 'GET'
     }).then(
-        response => response.json()
+      response => response.json()
     ).then(
-        data => this.handleSetlist(data)
+      data => this.handleSetlist(data)
     );
   }
 
@@ -47,6 +74,7 @@ export default class App extends Component {
     }
 
     playlist.printSongs();
+    return playlist;
   };
 
   handleDate = (date) => {
