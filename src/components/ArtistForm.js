@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import queryString from "query-string";
+import axios from 'axios';
 
-import Playlist from '../Playlist.js';
+import Playlist from '../Playlist.js';;
 
 export default class App extends Component {
   constructor(props) {
@@ -22,14 +23,12 @@ export default class App extends Component {
       code: parsed.code
     });
 
-    fetch(`http://localhost:4000/code/${parsed.code}`, {
-      method: 'GET'
-    }).then(
-      response => response.json()
-    ).then(
-      data => this.setState({
-        access_token: data.access_token
-      })
+    axios.get(`http://localhost:4000/code/${parsed.code}`).then(
+      res => {
+        this.setState({
+          access_token: res.data.access_token
+        });
+      }
     );
   }
 
@@ -42,22 +41,18 @@ export default class App extends Component {
     console.log(artist);
     console.log(date);
 
-    fetch(`http://localhost:4000/access_token/${this.state.access_token}`, {
-      method: 'GET'
-    }).then(
-      response => response.json()
-    ).then(
-      data => this.setState({
-        user_id: data.id
-      })
+    axios.get(`http://localhost:4000/access_token/${this.state.access_token}`).then(
+      res => {
+        this.setState({
+          user_id: res.data.id
+        });
+      }
     );
 
-    fetch(`http://localhost:4000/artist/${artist}/date/${date}`, {
-      method: 'GET'
-    }).then(
-      response => response.json()
-    ).then(
-      data => this.handleSetlist(data)
+    axios.get(`http://localhost:4000/artist/${artist}/date/${date}`).then(
+      res => {
+        this.handleSetlist(res.data);
+      }
     );
   }
 
