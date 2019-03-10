@@ -19,7 +19,8 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "express": "nodemon -w src/express.js src/express.js"
+    "express": "nodemon -w src/express.js src/express.js",
+    "serve": "NODE_ENV=production node src/express.js"
   },
   "eslintConfig": {
     "extends": "react-app"
