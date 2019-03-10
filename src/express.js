@@ -9,8 +9,9 @@ const port = 4000;
 
 const rootPath = path.join(__dirname, '..');
 
+app.use(express.static(path.join( rootPath, 'build' )))
 app.get('/', (req, res) => {
-  res.sendFile(path.join( rootPath, 'build', 'index.html'));
+  res.sendFile(path.join( rootPath, 'build', 'index.html' ));
 })
 
 
