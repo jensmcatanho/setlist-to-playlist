@@ -1,22 +1,14 @@
 const express = require('express');
 const path = require('path');
 const cors = require('cors');
+const bodyParser = require('body-parser');
 const request = require('request');
 const axios = require('axios');
 const app = express();
 
-const Config = {
-  port: process.env['MAIN_PORT'] || 4000,
-  host: process.env['MAIN_HOST'] || 'http://localhost:3000/'
-}
+app.use(bodyParser.json());
 
-const rootPath = path.join(__dirname, '..');
-
-app.use(express.static(path.join( rootPath, 'build' )))
-app.get('/', (req, res) => {
-  res.sendFile(path.join( rootPath, 'build', 'index.html' ));
-})
-
+app.get('/', (req, res) => res.send('Hello World!'));
 
 app.get('/artist/:artistName/date/:date', cors(), function(req, res) {
     let config = {
@@ -59,7 +51,7 @@ app.get('/access_token/:access_token', cors(), function(req, res) {
         headers: {
             'Authorization': 'Bearer ' + req.params.access_token
         }
-    }
+    };
 
     axios.get('https://api.spotify.com/v1/me', config).then(
         response => {
@@ -68,4 +60,64 @@ app.get('/access_token/:access_token', cors(), function(req, res) {
     );
 });
 
-app.listen(Config.port, () => console.log(`Listening on port ${Config.port}!`));
+app.options('/playlist', cors());
+app.post('/playlist', cors(), function(req, res) {
+    let user_id = req.body.user_id;
+    let access_token = req.body.access_token;
+    let playlist = req.body.playlist;
+    let playlist_id = "";
+
+    axios({
+        url: `https://api.spotify.com/v1/users/${user_id}/playlists`,
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${access_token}`,
+            "Accept": "application/json",
+            'Content-Type': 'application/json'
+        },
+        data: {
+            "name": `${playlist.artistName} -  ${playlist.date}`,
+            "description": `${playlist.description}`,
+            "public": false
+        }
+    }).then( response => {
+        playlist_id = response.data.id;
+
+        let promises = [];
+        for (let i = 0; i < playlist.songs.length; i++) {
+            let songEncoded = playlist.songs[i].name.replace(' ', '%20');
+            let artistEncoded = playlist.artistName.replace(' ', '%20');
+
+            promises.push(axios({
+                url: `https://api.spotify.com/v1/search?q=${songEncoded}%20artist:${artistEncoded}&type=track&limit=1`,
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${access_token}`,
+                    "Accept": "application/json",
+                    'Content-Type': 'application/json'
+                }
+            }));
+        }
+
+        let song_ids = [];
+        axios.all(promises).then(response => {
+            song_ids = response.map(r => r.data.tracks.items[0].uri);
+            axios({
+                url: `https://api.spotify.com/v1/playlists/${playlist_id}/tracks`,
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${access_token}`,
+                    "Accept": "application/json",
+                    'Content-Type': 'application/json'
+                },
+                data: {
+                    "uris": song_ids
+                }
+            }).then(response => {
+               res.send(status)
+            });
+        });
+    });
+});
+
+app.listen(port, () => console.log(`Listening on port ${port}!`));
