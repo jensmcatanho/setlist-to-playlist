@@ -9,9 +9,7 @@ export default class App extends Component {
     super(props);
 
     this.state = {
-      "code": "",
       "access_token": "",
-      "user_id": ""
     }
 
     this.handleSubmit = this.handleSubmit.bind(this);
@@ -19,9 +17,6 @@ export default class App extends Component {
 
   componentDidMount() {
     const parsed = queryString.parse(this.props.location.search);
-    this.setState({
-      code: parsed.code
-    });
 
     axios.get(`http://localhost:4000/code/${parsed.code}`).then(
       res => {
@@ -38,39 +33,37 @@ export default class App extends Component {
     const data = new FormData(event.target);
     const artist = data.get("artist");
     const date = this.handleDate(data.get("date"));
+    let playlist = new Playlist();
     console.log(artist);
     console.log(date);
 
+    axios.get(`http://localhost:4000/artist/${artist}/date/${date}`).then(
+        res => {
+          playlist.constructor2(res.data);
+        }
+    );
+
+    console.log(playlist);
+
     axios.get(`http://localhost:4000/access_token/${this.state.access_token}`).then(
       res => {
-        this.setState({
-          user_id: res.data.id
-        });
+        axios({
+          method: 'POST',
+          url: 'http://localhost:4000/playlist/',
+          data: {
+            "user_id": res.data.id,
+            "access_token": this.state.access_token,
+            "playlist": playlist
+          }
+        }).then(
+            res => {
+              console.log(res.data);
+            }
+        );
       }
     );
 
-    axios.get(`http://localhost:4000/artist/${artist}/date/${date}`).then(
-      res => {
-        this.handleSetlist(res.data);
-      }
-    );
   }
-
-  handleSetlist = (setlist) => {
-    let playlist = new Playlist(setlist.setlist[0].artist.name, setlist.setlist[0].eventDate);
-
-    const numSets = setlist.setlist[0].sets.set.length;
-    for (let i = 0; i < numSets; i++) {
-      const numSongs = setlist.setlist[0].sets.set[i].song.length;
-
-      for (let j = 0; j < numSongs; j++) {
-        playlist.addSong(setlist.setlist[0].sets.set[i].song[j].name);
-      }
-    }
-
-    playlist.printSongs();
-    return playlist;
-  };
 
   handleDate = (date) => {
     const [year, month, day] = date.split('-');
