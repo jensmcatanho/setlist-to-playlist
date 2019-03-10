@@ -6,7 +6,10 @@ const request = require('request');
 const axios = require('axios');
 const app = express();
 
-const port = process.env['MAIN_PORT'] || 4000;
+const Config = {
+  port: process.env['MAIN_PORT'] || 4000,
+  host: process.env['MAIN_HOST'] || 'http://localhost:3000/'
+}
 
 const rootPath = path.join(__dirname, '..');
 
@@ -37,7 +40,8 @@ app.get('/code/:code', cors(), function(req, res) {
         url: 'https://accounts.spotify.com/api/token',
         form: {
           code: req.params.code,
-          redirect_uri: 'http://localhost:3000/create-playlist/',
+          // redirect_url: `$host`
+          redirect_uri: `${Config.host}/create-playlist/`,
           grant_type: 'authorization_code'
         },
         headers: {
@@ -65,4 +69,4 @@ app.get('/access_token/:access_token', cors(), function(req, res) {
     );
 });
 
-app.listen(port, () => console.log(`Listening on port ${port}!`));
+app.listen(Config.port, () => console.log(`Listening on port ${Config.port}!`));
