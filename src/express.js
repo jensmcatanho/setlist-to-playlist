@@ -5,7 +5,8 @@ const fetch = require("node-fetch");
 const request = require('request');
 const axios = require('axios');
 const app = express();
-const port = 4000;
+
+const port = process.env['MAIN_PORT'] || 4000;
 
 const rootPath = path.join(__dirname, '..');
 
