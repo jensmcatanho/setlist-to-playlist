@@ -89,7 +89,7 @@ app.post('/playlist', cors(), function(req, res) {
             let artistEncoded = playlist.artistName.replace(' ', '%20');
 
             promises.push(axios({
-                url: `https://api.spotify.com/v1/search?q=${songEncoded}%20artist:${artistEncoded}&type=track&limit=1`,
+                url: `https://api.spotify.com/v1/search?q=${songEncoded}%20artist:${artistEncoded}&type=track&limit=20`,
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${access_token}`,
@@ -101,7 +101,15 @@ app.post('/playlist', cors(), function(req, res) {
 
         let song_ids = [];
         axios.all(promises).then(response => {
-            song_ids = response.map(r => r.data.tracks.items[0].uri);
+            song_ids = response.map((r, i) => {
+                for (let j = 0; j < r.data.tracks.items.length; j++) {
+                    if (r.data.tracks.items[j].name.toLowerCase().includes(playlist.songs[i].name.toLowerCase())) {
+                        return r.data.tracks.items[j].uri;
+                    }
+                }
+
+                return r.data.tracks.items[0].uri;
+            });
             axios({
                 url: `https://api.spotify.com/v1/playlists/${playlist_id}/tracks`,
                 method: 'POST',
