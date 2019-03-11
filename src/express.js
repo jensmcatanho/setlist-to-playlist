@@ -32,7 +32,7 @@ app.get('/code/:code', cors(), function(req, res) {
         form: {
           code: req.params.code,
           // redirect_url: `$host`
-          redirect_uri: `${Config.host}/create-playlist/`,
+          redirect_uri: `${Config.host}create-playlist/`,
           grant_type: 'authorization_code'
         },
         headers: {
