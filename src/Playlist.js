@@ -1,5 +1,5 @@
 export default class Playlist {
-    constructor2(setlist) {
+    constructor(setlist) {
         this.artistName = setlist.setlist[0].artist.name;
         this.venue = {
             "name": setlist.setlist[0].venue.name,
