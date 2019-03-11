@@ -114,7 +114,7 @@ app.post('/playlist', cors(), function(req, res) {
                     "uris": song_ids
                 }
             }).then(response => {
-               res.send(status)
+               res.send(response.data);
             });
         });
     });

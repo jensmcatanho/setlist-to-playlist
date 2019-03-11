@@ -33,10 +33,36 @@ export default class App extends Component {
     const data = new FormData(event.target);
     const artist = data.get("artist");
     const date = this.handleDate(data.get("date"));
-    let playlist = new Playlist();
+    //let playlist = new Playlist();
     console.log(artist);
     console.log(date);
 
+    axios({
+      url: `http://localhost:4000/artist/${artist}/date/${date}`,
+      method: "GET"
+    }).then( response => {
+      let playlist = new Playlist(response.data);
+
+      axios({
+        url: `http://localhost:4000/access_token/${this.state.access_token}`,
+        method: "GET",
+      }).then( response => {
+        axios({
+          method: 'POST',
+          url: 'http://localhost:4000/playlist/',
+          data: {
+            "user_id": response.data.id,
+            "access_token": this.state.access_token,
+            "playlist": playlist
+          }
+        }).then(
+          response => {
+             console.log(response.data);
+        });
+      });
+    });
+
+    /*
     axios.get(`http://localhost:4000/artist/${artist}/date/${date}`).then(
         res => {
           playlist.constructor2(res.data);
@@ -62,7 +88,7 @@ export default class App extends Component {
         );
       }
     );
-
+  */
   }
 
   handleDate = (date) => {
