@@ -14,7 +14,7 @@ export default class Home extends Component {
     return (
       <div className="Home">
         <h1>Setlist to Playlist</h1>
-        <button type="button" name="spotify-login" onClick={this.handleSpotifyLogin}>Log in with Spotify</button>
+        <button type="button" class="button" name="spotify-login" onClick={this.handleSpotifyLogin}>Log in with Spotify</button>
       </div>
     );
   }
