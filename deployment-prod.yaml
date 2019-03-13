@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: setlist-to-playlist
+spec:
+  selector:
+    matchLabels:
+      app: setlist-to-playlist
+      env: prod
+      type: node
+  minReadySeconds: 5
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        deployedBy: hand
+        app: setlist-to-playlist
+        env: prod
+        type: node
+    spec:
+      volumes: []
+      containers:
+        - name: setlist-to-playlist
+          image: 'memuller/setlist-to-playlist:prod'
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: 4000
+          env:
+            - name: MAIN_HOST
+              value: https://setlist.jeancatanho.com
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-setlist
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: setlist.jeancatanho.com
+spec:
+  type: NodePort
+  ports:
+    - name: http
+      port: 4000
+      protocol: TCP
+  selector:
+    app: setlist-to-playlist
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: main-ingress
+spec:
+  rules:
+  - host: setlist.jeancatanho.com
+    http:
+      paths:
+      - backend:
+          serviceName: web-setlist
+          servicePort: http
