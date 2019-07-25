@@ -85,8 +85,8 @@ app.post('/playlist', cors(), function(req, res) {
 
         let promises = [];
         for (let i = 0; i < playlist.songs.length; i++) {
-            let songEncoded = playlist.songs[i].name.replace(' ', '%20');
-            let artistEncoded = playlist.artistName.replace(' ', '%20');
+            let songEncoded = playlist.songs[i].name.split(' ').join('%20');
+            let artistEncoded = playlist.artistName.split(' ').join('%20');
 
             promises.push(axios({
                 url: `https://api.spotify.com/v1/search?q=${songEncoded}%20artist:${artistEncoded}&type=track&limit=20`,
