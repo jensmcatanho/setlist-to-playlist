@@ -4,6 +4,12 @@ import axios from 'axios';
 
 import Playlist from '../Playlist.js';;
 
+require('dotenv').config()
+const Config = {
+  express_port: process.env['REACT_APP_EXPRESS_PORT'],
+  main_host: process.env['REACT_APP_MAIN_HOST'],
+};
+
 export default class App extends Component {
   constructor(props) {
     super(props);
@@ -18,7 +24,7 @@ export default class App extends Component {
   componentDidMount() {
     const parsed = queryString.parse(this.props.location.search);
 
-    axios.get(`http://localhost:4000/code/${parsed.code}`).then(
+    axios.get(`${Config.main_host}:${Config.express_port}/code/${parsed.code}`).then(
       res => {
         this.setState({
           access_token: res.data.access_token
@@ -38,18 +44,18 @@ export default class App extends Component {
     console.log(date);
 
     axios({
-      url: `http://localhost:4000/artist/${artist}/date/${date}`,
+      url: `${Config.main_host}:${Config.express_port}/artist/${artist}/date/${date}`,
       method: "GET"
     }).then( response => {
       let playlist = new Playlist(response.data);
 
       axios({
-        url: `http://localhost:4000/access_token/${this.state.access_token}`,
+        url: `${Config.main_host}:${Config.express_port}/access_token/${this.state.access_token}`,
         method: "GET",
       }).then( response => {
         axios({
           method: 'POST',
-          url: 'http://localhost:4000/playlist/',
+          url: `${Config.main_host}:${Config.express_port}/playlist/`,
           data: {
             "user_id": response.data.id,
             "access_token": this.state.access_token,
