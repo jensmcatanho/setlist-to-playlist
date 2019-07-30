@@ -1,3 +1,4 @@
+require('dotenv').config()
 const express = require('express');
 const path = require('path');
 const cors = require('cors');
@@ -5,6 +6,21 @@ const bodyParser = require('body-parser');
 const request = require('request');
 const axios = require('axios');
 const app = express();
+
+const Config = {
+  express_port: process.env['REACT_APP_EXPRESS_PORT'],
+  main_host: process.env['REACT_APP_MAIN_HOST'],
+  main_port: process.env['REACT_APP_MAIN_PORT'],
+  spotify: {
+    client_id: process.env['REACT_APP_SPOTIFY_CLIENT_ID'],
+    client_secret: process.env['SPOTIFY_CLIENT_SECRET'],
+  },
+  setlistfm: {
+    api_key: process.env['SETLISTFM_API_KEY'],
+  }
+};
+
+const rootPath = path.join(__dirname, '..');
 
 app.use(bodyParser.json());
 
@@ -14,7 +30,7 @@ app.get('/artist/:artistName/date/:date', cors(), function(req, res) {
     let config = {
         headers: {
             "Accept": "application/json",
-            "x-api-key": "eb4ad752-21d6-433a-ab6c-0a52a62d7f57"
+            "x-api-key": Config.setlistfm.api_key
         }
     }
 
@@ -32,11 +48,11 @@ app.get('/code/:code', cors(), function(req, res) {
         form: {
           code: req.params.code,
           // redirect_url: `$host`
-          redirect_uri: `${Config.host}create-playlist/`,
+          redirect_uri: `${Config.main_host}:${Config.main_port}/create-playlist/`,
           grant_type: 'authorization_code'
         },
         headers: {
-          'Authorization': 'Basic ' + (new Buffer('e7a1436f0ecd4ae9aec4da4db57fb48e:cdd7d80e7b524232a501dd71d732bbc9').toString('base64'))
+          'Authorization': 'Basic ' + (new Buffer(`${Config.spotify.client_id}:${Config.spotify.client_secret}`).toString('base64'))
         },
         json: true
     };
@@ -136,4 +152,4 @@ app.post('/playlist', cors(), function(req, res) {
     });
 });
 
-app.listen(port, () => console.log(`Listening on port ${port}!`));
+app.listen(Config.express_port, () => console.log(`Listening on port ${Config.express_port}!`));
