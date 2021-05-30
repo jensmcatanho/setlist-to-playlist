@@ -24,7 +24,7 @@ const rootPath = path.join(__dirname, '..');
 
 app.use(bodyParser.json());
 
-app.get('/', (req, res) => res.send('Hello World!'));
+app.get('/healthcheck', (req, res) => res.send('WORKING'));
 
 app.get('/artist/:artistName/date/:date', cors(), function(req, res) {
     let config = {

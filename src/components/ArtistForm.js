@@ -39,9 +39,8 @@ export default class App extends Component {
     const data = new FormData(event.target);
     const artist = data.get("artist");
     const date = this.handleDate(data.get("date"));
-    //let playlist = new Playlist();
-    console.log(artist);
-    console.log(date);
+
+    console.log(`URL: ${Config.main_host}:${Config.express_port}/artist/${artist}/date/${date}`);
 
     axios({
       url: `${Config.main_host}:${Config.express_port}/artist/${artist}/date/${date}`,
@@ -67,34 +66,6 @@ export default class App extends Component {
         });
       });
     });
-
-    /*
-    axios.get(`http://localhost:4000/artist/${artist}/date/${date}`).then(
-        res => {
-          playlist.constructor2(res.data);
-        }
-    );
-
-    console.log(playlist);
-
-    axios.get(`http://localhost:4000/access_token/${this.state.access_token}`).then(
-      res => {
-        axios({
-          method: 'POST',
-          url: 'http://localhost:4000/playlist/',
-          data: {
-            "user_id": res.data.id,
-            "access_token": this.state.access_token,
-            "playlist": playlist
-          }
-        }).then(
-            res => {
-              console.log(res.data);
-            }
-        );
-      }
-    );
-  */
   }
 
   handleDate = (date) => {
