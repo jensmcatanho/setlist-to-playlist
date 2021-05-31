@@ -13,10 +13,10 @@ export default class Playlist {
         this.description = "";
 
         const numSets = setlist.setlist[0].sets.set.length;
-        for (let i = 0; i < numSets; i++) {
+        for (let i = 0; i < numSets; ++i) {
             const numSongs = setlist.setlist[0].sets.set[i].song.length;
 
-            for (let j = 0; j < numSongs; j++) {
+            for (let j = 0; j < numSongs; ++j) {
                 this.addSong(setlist.setlist[0].sets.set[i].song[j].name);
             }
         }

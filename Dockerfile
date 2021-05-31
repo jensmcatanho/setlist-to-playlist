@@ -1,13 +1,7 @@
-FROM node:11-alpine
+FROM node:alpine
 
-ARG ENV="production"
-ARG PORT=4000
+EXPOSE 3000 8080
 
-EXPOSE ${PORT}
-
-ENV NODE_ENV="${ENV}"
-
-# Install packages and pm2 lib, as root
 USER root
 RUN \
   apk add build-base make gcc g++ linux-headers python-dev libc-dev libc6-compat &&\
@@ -15,15 +9,13 @@ RUN \
 
 WORKDIR /app
 
-# Adds nodejs user; makes it the owner of /app
-RUN \
-  adduser -S nodejs &&\
-  chown -R nodejs /app &&\
-  chown -R nodejs /home/nodejs
+#RUN \
+#  adduser -S nodejs &&\
+#  chown -R nodejs /app &&\
+#  chown -R nodejs /home/nodejs
 
-USER nodejs
+#USER nodejs
 
-# Copies package.json and lockfile and install packages
 COPY package.json yarn.lock /app/
 RUN \
   yarn install --no-cache 
@@ -35,6 +27,8 @@ COPY . /app/
 RUN \
   yarn run build
 
-USER nodejs
+#USER nodejs
 
-CMD [ "pm2-runtime", "./src/express.js" ]
+CMD [ "yarn", "start" ]
+
+#CMD [ "pm2-runtime", "./src/express.js" ]

@@ -25,9 +25,9 @@ export default class App extends Component {
     const parsed = queryString.parse(this.props.location.search);
 
     axios.get(`${Config.main_host}:${Config.express_port}/code/${parsed.code}`).then(
-      res => {
+      response => {
         this.setState({
-          access_token: res.data.access_token
+          access_token: response.data
         });
       }
     );
@@ -56,7 +56,7 @@ export default class App extends Component {
           method: 'POST',
           url: `${Config.main_host}:${Config.express_port}/playlist/`,
           data: {
-            "user_id": response.data.id,
+            "user_id": response.data,
             "access_token": this.state.access_token,
             "playlist": playlist
           }
