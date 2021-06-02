@@ -7,7 +7,7 @@ EXPOSE 3000 8080
 #  apk add build-base make gcc g++ linux-headers python-dev libc-dev libc6-compat &&\
 #  yarn global add pm2
 
-#WORKDIR /app
+WORKDIR /app
 
 #RUN \
 #  adduser -S nodejs &&\
@@ -24,8 +24,7 @@ RUN \
 COPY . /app/
 
 # Runs the React build script
-RUN \
-  yarn run build
+RUN yarn run build
 
 #USER nodejs
 
