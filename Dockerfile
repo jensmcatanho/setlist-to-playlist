@@ -2,12 +2,12 @@ FROM node:alpine
 
 EXPOSE 3000 8080
 
-USER root
-RUN \
-  apk add build-base make gcc g++ linux-headers python-dev libc-dev libc6-compat &&\
-  yarn global add pm2
+#USER root
+#RUN \
+#  apk add build-base make gcc g++ linux-headers python-dev libc-dev libc6-compat &&\
+#  yarn global add pm2
 
-WORKDIR /app
+#WORKDIR /app
 
 #RUN \
 #  adduser -S nodejs &&\
