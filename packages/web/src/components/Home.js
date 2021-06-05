@@ -1,24 +1,13 @@
 import React, { Component } from 'react';
 
-require('dotenv').config()
-const Config = {
-  main_host: process.env['REACT_APP_MAIN_HOST'],
-  main_port: process.env['REACT_APP_MAIN_PORT'],
-  spotify: {
-    client_id: process.env['REACT_APP_SPOTIFY_CLIENT_ID'],
-  },
-};
-
 export default class Home extends Component {
 
   handleSpotifyLogin() {
-    console.log(Config);
-
     window.location.href = 'https://accounts.spotify.com/authorize' +
     '?response_type=code' +
-    `&client_id=${Config.spotify.client_id}` +
+    `&client_id=${process.env.SPOTIFY_CLIENTID}` +
     '&scope=playlist-modify-private' +
-    '&redirect_uri=' + encodeURIComponent(`${Config.main_host}:${Config.main_port}/create-playlist/`);
+    '&redirect_uri=' + encodeURIComponent(`${process.env.WEB_URL}/create-playlist/`);
   }
 
   render() {

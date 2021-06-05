@@ -1,27 +1,19 @@
-require('dotenv').config()
-const express = require('express')
-const cors = require('cors')
-const bodyParser = require('body-parser')
-const axios = require('axios')
-const queryString = require('query-string')
-const app = express()
+import express from 'express'
+import cors from 'cors'
+import bodyParser from 'body-parser'
+import axios from 'axios'
+import dotenv from 'dotenv'
+import { stringify } from 'query-string'
 
-const Config = {
-  express_port: process.env['REACT_APP_EXPRESS_PORT'],
-  main_host: process.env['REACT_APP_MAIN_HOST'],
-  main_port: process.env['REACT_APP_MAIN_PORT'],
-  spotify: {
-    client_id: process.env['REACT_APP_SPOTIFY_CLIENT_ID'],
-    client_secret: process.env['SPOTIFY_CLIENT_SECRET'],
-  },
-  setlistfm: {
-    api_key: process.env['SETLISTFM_API_KEY'],
-  }
-}
+dotenv.config()
+
+const app = express()
 
 app.use(bodyParser.json())
 
-app.get('/healthcheck', (req, res) => res.send('WORKING'))
+app.get('/healthcheck', (req, res) => {
+    res.send(healthCheck ? 'WORKING\n' : 'NOT WORKING\n')
+})
 
 app.get('/artist/:artistName/date/:date', cors(), (req, res) => {
     fetchSetlist(req.params.artistName, req.params.date).then(response => res.send(response))
@@ -40,13 +32,19 @@ app.post('/playlist', cors(), (req, res) => {
     createPlaylist(req.body.user_id, req.body.access_token, req.body.playlist).then(response => res.send(response))
 })
 
+function healthCheck() {
+    return process.env.SPOTIFY_CLIENTID &&
+        process.env.SPOTIFY_CLIENT_SECRET &&
+        process.env.SETLISTFM_API_KEY
+}
+
 function fetchSetlist(artistName, date) {
     return axios({
         url: `https://api.setlist.fm/rest/1.0/search/setlists/?artistName=${artistName}&date=${date}`,
         method: 'GET',
         headers: {
             "Accept": "application/json",
-            "x-api-key": Config.setlistfm.api_key
+            "x-api-key": process.env.SETLISTFM_API_KEY
         }
     }).then(response => {
         return response.data
@@ -59,13 +57,13 @@ function getAccessToken(authorizationCode) {
     return axios({
         url: 'https://accounts.spotify.com/api/token',
         method: 'POST',
-        data: queryString.stringify({
+        data: stringify({
             code: authorizationCode,
-            redirect_uri: `${Config.main_host}:${Config.main_port}/create-playlist/`,
+            redirect_uri: `${process.env.WEB_URL}/create-playlist/`,
             grant_type: 'authorization_code'
         }),
         headers: {
-            'Authorization': 'Basic ' + (new Buffer(`${Config.spotify.client_id}:${Config.spotify.client_secret}`).toString('base64')),
+            'Authorization': 'Basic ' + (new Buffer(`${process.env.SPOTIFY_CLIENTID}:${process.env.SPOTIFY_CLIENT_SECRET}`).toString('base64')),
             'Content-Type': 'application/x-www-form-urlencoded'
         }
     }).then(response => {
@@ -92,6 +90,7 @@ function getUserID(accessToken) {
 
 function createPlaylist(userID, accessToken, playlist) {
     return initPlaylist(userID, accessToken, playlist).then(response => {
+        console.log(`createPlaylist: ${JSON.stringify(response, null, 4)}`)
         getSongIDs(accessToken, playlist).then(songIDs => {        
             addSongsToPlaylist(response.id, accessToken, songIDs).then(response => {
                 return response.data
@@ -198,4 +197,4 @@ function logRequestError(handlerName, error) {
     console.log(error.config)
 }
 
-app.listen(Config.express_port, () => console.log(`Listening on port ${Config.express_port}!`))
+app.listen(process.env.PORT, () => console.log(`Listening on port ${process.env.PORT}!`))
