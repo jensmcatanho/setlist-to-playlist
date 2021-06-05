@@ -14,7 +14,8 @@
   },
   "devDependencies": {
     "@types/cors": "^2.8.10",
-    "@types/express": "^4.17.12"
+    "@types/express": "^4.17.12",
+    "pm2": "^4.5.6"
   },
   "scripts": {
     "start": "node index.js"

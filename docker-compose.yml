@@ -6,3 +6,9 @@ services:
     ports:
       - 8080:8080
     env_file: packages/server/.env
+    volumes:
+      - ./app/:/packages/server
+      - node_modules:/node_modules
+
+volumes:
+  node_modules: {}

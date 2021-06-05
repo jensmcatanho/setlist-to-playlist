@@ -9,4 +9,4 @@ RUN yarn install --no-cache
 
 COPY . /app/
 
-CMD [ "yarn", "start" ]
+CMD [ "pm2-dev", "yarn", "start" ]
