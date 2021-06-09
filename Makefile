@@ -1,8 +1,12 @@
 .PHONY: build
 build:
-	docker build --no-cache -t jensmcatanho/setlist-to-playlist:base .
+	docker build --tag jensmcatanho/setlist-to-playlist:base .
 	docker compose build
 
 .PHONY: run
-run: build
-	docker compose up
+run: clean build
+	docker compose up --detach
+
+.PHONY: clean
+clean:
+	docker compose down --remove-orphans
