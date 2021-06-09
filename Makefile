@@ -1,3 +1,4 @@
 .PHONY: run
 run:
-	docker-compose up
+	docker build --no-cache -t jensmcatanho/setlist-to-playlist:base .
+	docker compose up
