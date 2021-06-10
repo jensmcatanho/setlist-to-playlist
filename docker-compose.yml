@@ -11,6 +11,13 @@ services:
     volumes:
       - ./app/:/packages/server
       - node_modules:/node_modules
+  web:
+    build:
+      context: ./packages/web
+      target: development
+    ports:
+      - 3000:3000
+    env_file: packages/web/.env
 
 volumes:
   node_modules: {}

@@ -28,10 +28,15 @@ module.exports = {
     ]
   },
   devServer: {
+    host: '0.0.0.0',
+    disableHostCheck: true,
     contentBase: path.join(__dirname, 'public'),
     historyApiFallback: true,
     hot: true,
-    port: process.env.PORT
+    port: process.env.PORT,
+    watchOptions: {
+      poll: true
+    }
   },
   output: {
     publicPath: '/'
