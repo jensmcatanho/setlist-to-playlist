@@ -38,89 +38,92 @@ function healthCheck() {
         process.env.SETLISTFM_API_KEY
 }
 
-function fetchSetlist(artistName, date) {
-    return axios({
-        url: `https://api.setlist.fm/rest/1.0/search/setlists/?artistName=${artistName}&date=${date}`,
-        method: 'GET',
-        headers: {
-            "Accept": "application/json",
-            "x-api-key": process.env.SETLISTFM_API_KEY
-        }
-    }).then(response => {
+async function fetchSetlist(artistName, date) {
+    try {
+        const response = await axios({
+            url: `https://api.setlist.fm/rest/1.0/search/setlists/?artistName=${artistName}&date=${date}`,
+            method: 'GET',
+            headers: {
+                "Accept": "application/json",
+                "x-api-key": process.env.SETLISTFM_API_KEY
+            }
+        })
         return response.data
-    }).catch(error => {
+    } catch (error) {
         logRequestError('fetchSetlist', error)
-    })
+    }
 }
 
-function getAccessToken(authorizationCode) {
-    return axios({
-        url: 'https://accounts.spotify.com/api/token',
-        method: 'POST',
-        data: stringify({
-            code: authorizationCode,
-            redirect_uri: `${process.env.WEB_URL}/create-playlist/`,
-            grant_type: 'authorization_code'
-        }),
-        headers: {
-            'Authorization': 'Basic ' + (new Buffer(`${process.env.SPOTIFY_CLIENTID}:${process.env.SPOTIFY_CLIENT_SECRET}`).toString('base64')),
-            'Content-Type': 'application/x-www-form-urlencoded'
-        }
-    }).then(response => {
-        console.log('Access token generated');
+async function getAccessToken(authorizationCode) {
+    try {
+        const response = await axios({
+            url: 'https://accounts.spotify.com/api/token',
+            method: 'POST',
+            data: stringify({
+                code: authorizationCode,
+                redirect_uri: `${process.env.WEB_URL}/create-playlist/`,
+                grant_type: 'authorization_code'
+            }),
+            headers: {
+                'Authorization': 'Basic ' + (new Buffer(`${process.env.SPOTIFY_CLIENTID}:${process.env.SPOTIFY_CLIENT_SECRET}`).toString('base64')),
+                'Content-Type': 'application/x-www-form-urlencoded'
+            }
+        })
+        console.log('Access token generated')
         return response.data.access_token
-    }).catch(error => {
+    } catch (error) {
         logRequestError('getAccessToken', error)
-    })
+    }
 }
 
-function getUserID(accessToken) {
-    return axios({
-        url: 'https://api.spotify.com/v1/me',
-        method: 'GET',
-        headers: {
-            'Authorization': 'Bearer ' + accessToken
-        }
-    }).then(response => {
+async function getUserID(accessToken) {
+    try {
+        const response = await axios({
+            url: 'https://api.spotify.com/v1/me',
+            method: 'GET',
+            headers: {
+                'Authorization': 'Bearer ' + accessToken
+            }
+        })
         return response.data.id
-    }).catch(error => {
+    } catch (error) {
         logRequestError('getUserID', error)
-    })
+    }
 }
 
-function createPlaylist(userID, accessToken, playlist) {
-    return initPlaylist(userID, accessToken, playlist).then(response => {
-        console.log(`createPlaylist: ${JSON.stringify(response, null, 4)}`)
-        getSongIDs(accessToken, playlist).then(songIDs => {        
-            addSongsToPlaylist(response.id, accessToken, songIDs).then(response => {
-                return response.data
-            })
+async function createPlaylist(userID, accessToken, playlist) {
+    const response = await initPlaylist(userID, accessToken, playlist)
+    console.log(`createPlaylist: ${JSON.stringify(response, null, 4)}`)
+    getSongIDs(accessToken, playlist).then(songIDs => {
+        addSongsToPlaylist(response.id, accessToken, songIDs).then(response_1 => {
+            return response_1.data
         })
     })
 }
 
-function initPlaylist(userID, accessToken, playlist) {
-    return axios({
-        url: `https://api.spotify.com/v1/users/${userID}/playlists`,
-        method: 'POST',
-        headers: {
-            'Authorization': `Bearer ${accessToken}`,
-            "Accept": "application/json",
-            'Content-Type': 'application/json'
-        },
-        data: {
-            "name": `${playlist.artistName} -  ${playlist.date}`,
-            "description": `${playlist.description}`,
-            "public": false
-        }
-    }).then(response => {
+async function initPlaylist(userID, accessToken, playlist) {
+    try {
+        const response = await axios({
+            url: `https://api.spotify.com/v1/users/${userID}/playlists`,
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${accessToken}`,
+                "Accept": "application/json",
+                'Content-Type': 'application/json'
+            },
+            data: {
+                "name": `${playlist.artistName} -  ${playlist.date}`,
+                "description": `${playlist.description}`,
+                "public": false
+            }
+        })
         return response.data
-    }).catch(error => {
+    } catch (error) {
         logRequestError('initPlaylist', error)
-    })
+    }
 }
 
-function getSongIDs(accessToken, playlist) {
+async function getSongIDs(accessToken, playlist) {
     let promises = []
     const artistEncoded = encodeURIComponent(playlist.artistName)
 
@@ -130,26 +133,26 @@ function getSongIDs(accessToken, playlist) {
     }
 
     let songIDs = []
-    return axios.all(promises).then(response => {
-        songIDs = response.map((r, i) => {
+    try {
+        const response = await axios.all(promises)
+        songIDs = response.map((r, i_1) => {
             if (r.data.tracks.items.length == 0)
                 return ""
 
             for (let j = 0; j < r.data.tracks.items.length; ++j) {
-                if (r.data.tracks.items[j].name.toLowerCase().includes(playlist.songs[i].name.toLowerCase())) {
+                if (r.data.tracks.items[j].name.toLowerCase().includes(playlist.songs[i_1].name.toLowerCase())) {
                     return r.data.tracks.items[j].uri
                 }
             }
-            
+
             return r.data.tracks.items[0].uri
-        }).filter(function(value, index, arr) {
+        }).filter(function (value, index, arr) {
             return value != ""
         })
-
         return songIDs
-    }).catch(error => {
+    } catch (error) {
         logRequestError('getSongIDs', error)
-    })
+    }
 }
 
 function getSong(song, artist, accessToken) {
@@ -164,24 +167,24 @@ function getSong(song, artist, accessToken) {
     })
 }
 
-function addSongsToPlaylist(playlistID, accessToken, songIDs) {
-    return axios({
-        url: `https://api.spotify.com/v1/playlists/${playlistID}/tracks`,
-        method: 'POST',
-        headers: {
-            'Authorization': `Bearer ${accessToken}`,
-            "Accept": "application/json",
-            'Content-Type': 'application/json'
-        },
-        data: {
-            "uris": songIDs
-        }
-
-    }).then(response => {
+async function addSongsToPlaylist(playlistID, accessToken, songIDs) {
+    try {
+        const response = await axios({
+            url: `https://api.spotify.com/v1/playlists/${playlistID}/tracks`,
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${accessToken}`,
+                "Accept": "application/json",
+                'Content-Type': 'application/json'
+            },
+            data: {
+                "uris": songIDs
+            }
+        })
         return response.data
-    }).catch(error => {
+    } catch (error) {
         logRequestError('addSongToPlaylist', error)
-    })
+    }
 }
 
 function logRequestError(handlerName, error) {
